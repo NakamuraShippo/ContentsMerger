@@ -9,6 +9,9 @@ from kivy.uix.spinner import Spinner
 from kivy.core.text import LabelBase, DEFAULT_FONT
 from kivy.resources import resource_add_path
 from kivy.config import Config
+from kivy.core.window import Window
+from kivy.uix.scrollview import ScrollView
+from kivy.metrics import dp
 from tkinter import Tk, filedialog
 import html
 
@@ -17,46 +20,52 @@ resource_add_path('C:/Windows/Fonts')
 LabelBase.register(DEFAULT_FONT, 'msgothic.ttc')
 
 # Kivy設定
-Config.set('kivy', 'log_level', 'error')
+#Config.set('kivy', 'log_level', 'error')
+# Kivy設定：ウィンドウサイズを固定し、サイズ変更を無効化
+Config.set('graphics', 'width', '10')
+Config.set('graphics', 'height', '30')
+Config.set('graphics', 'resizable', '0')
+Config.set('kivy', 'window_icon', '')  # アイコンを無効化（オプション）
+Window.size = (300,300)
 
 class FolderContentMerger(BoxLayout):
     def __init__(self, **kwargs):
         super(FolderContentMerger, self).__init__(**kwargs)
         self.orientation = 'vertical'
-        
+        self.padding = [10, 10, 10, 10]  # 左、上、右、下のパディング
+        self.spacing = 10
+
         self.folder_path = ""
-        
-        self.folder_button = Button(text="フォルダを選択", size_hint_y=None, height=50)
+
+        self.folder_button = Button(text="フォルダを選択", size_hint_y=None, height=40)
         self.folder_button.bind(on_press=self.show_folder_chooser)
-        
+
         self.folder_label = Label(text="選択されたフォルダ: なし", size_hint_y=None, height=30)
-        
-        # サブフォルダーを含めるかどうかのチェックボックス
+
         subfolder_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=30)
         subfolder_label = Label(text="サブフォルダーを含める")
-        self.subfolder_checkbox = CheckBox(active=True)
         subfolder_box.add_widget(subfolder_label)
+        self.subfolder_checkbox = CheckBox(active=True, size_hint_x=None, width=100)
         subfolder_box.add_widget(self.subfolder_checkbox)
-        
-        # 出力形式の選択
+
         output_format_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=30)
         output_format_label = Label(text="出力形式:")
-        self.output_format_spinner = Spinner(text='TXT', values=('TXT', 'HTML'))
+        self.output_format_spinner = Spinner(text='TXT', values=('TXT', 'HTML'), size_hint_x=None, width=100)
         output_format_box.add_widget(output_format_label)
         output_format_box.add_widget(self.output_format_spinner)
-        
-        self.merge_button = Button(text="処理開始", size_hint_y=None, height=50)
+
+        self.merge_button = Button(text="処理開始", size_hint_y=None, height=40)
         self.merge_button.bind(on_press=self.merge_files)
-        
+
         self.result_label = Label(text="", size_hint_y=None, height=30)
-        
+
         self.add_widget(self.folder_button)
         self.add_widget(self.folder_label)
         self.add_widget(subfolder_box)
         self.add_widget(output_format_box)
         self.add_widget(self.merge_button)
         self.add_widget(self.result_label)
-        
+
     def show_folder_chooser(self, instance):
         root = Tk()
         root.withdraw()
