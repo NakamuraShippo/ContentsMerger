@@ -12,7 +12,7 @@ ClaudeやGPTとのやりとりが長くなった時、別セッションに移�
 ## インストール
 
 1. このリポジトリをクローンまたはダウンロードします。
-   - git clone https://github.com/yourusername/folder-content-merger.git
+   - git clone https://github.com/NakamuraShippo/folder-content-merger.git
    - ダウンロードした場合は解凍してください。
 2. install.batをダブルクリックし依存関係をインストールします。
 3. run.batをダブルクリックすると起動します
