@@ -15,7 +15,7 @@ ClaudeやGPTとのやりとりが長くなった時、別セッションに移�
    - git clone https://github.com/NakamuraShippo/ContentsMerger.git
    - ダウンロードした場合は解凍してください。
 2. install.batをダブルクリックし依存関係をインストールします。
-3. run.batをダブルクリックすると起動します
+3. ContentsMerger.batをダブルクリックすると起動します
 
 ## 使用方法
 
