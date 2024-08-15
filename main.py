@@ -26,11 +26,11 @@ Config.set('graphics', 'width', '10')
 Config.set('graphics', 'height', '30')
 Config.set('graphics', 'resizable', '0')
 Config.set('kivy', 'window_icon', '')  # アイコンを無効化（オプション）
-Window.size = (300,300)
+Window.size = (500,300)
 
-class FolderContentMerger(BoxLayout):
+class ContentMerger(BoxLayout):
     def __init__(self, **kwargs):
-        super(FolderContentMerger, self).__init__(**kwargs)
+        super(ContentMerger, self).__init__(**kwargs)
         self.orientation = 'vertical'
         self.padding = [10, 10, 10, 10]  # 左、上、右、下のパディング
         self.spacing = 10
@@ -95,31 +95,32 @@ class FolderContentMerger(BoxLayout):
             return
         
         output_format = self.output_format_spinner.text
-        output_file = os.path.join(self.folder_path, f"merged_content.{output_format.lower()}")
+        output_filename = f"merged_content.{output_format.lower()}"
+        output_file = os.path.join(self.folder_path, output_filename)
         include_subfolders = self.subfolder_checkbox.active
         
         if output_format == 'HTML':
-            self.merge_files_html(output_file, include_subfolders)
+            self.merge_files_html(output_file, include_subfolders, output_filename)
         else:
-            self.merge_files_txt(output_file, include_subfolders)
+            self.merge_files_txt(output_file, include_subfolders, output_filename)
         
         self.result_label.text = f"ファイルが作成されました: {output_file}"
-    
-    def merge_files_txt(self, output_file, include_subfolders):
+
+    def merge_files_txt(self, output_file, include_subfolders, output_filename):
         with open(output_file, 'w', encoding='utf-8') as outfile:
             if include_subfolders:
-                self.process_folder_txt(self.folder_path, outfile)
+                self.process_folder_txt(self.folder_path, outfile, output_filename)
             else:
-                self.process_files_in_folder_txt(self.folder_path, outfile)
-    
-    def process_folder_txt(self, folder_path, outfile):
+                self.process_files_in_folder_txt(self.folder_path, outfile, output_filename)
+
+    def process_folder_txt(self, folder_path, outfile, output_filename):
         for root, dirs, files in os.walk(folder_path):
-            self.process_files_in_folder_txt(root, outfile)
-    
-    def process_files_in_folder_txt(self, folder_path, outfile):
+            self.process_files_in_folder_txt(root, outfile, output_filename)
+
+    def process_files_in_folder_txt(self, folder_path, outfile, output_filename):
         for file in os.listdir(folder_path):
             file_path = os.path.join(folder_path, file)
-            if os.path.isfile(file_path):
+            if os.path.isfile(file_path) and file != output_filename:
                 self.write_file_content_txt(file_path, outfile)
 
     def write_file_content_txt(self, file_path, outfile):
@@ -143,7 +144,7 @@ class FolderContentMerger(BoxLayout):
         
         outfile.write(f"\n===== FILE_END: {file} =====\n\n")
 
-    def merge_files_html(self, output_file, include_subfolders):
+    def merge_files_html(self, output_file, include_subfolders, output_filename):
         with open(output_file, 'w', encoding='utf-8') as outfile:
             outfile.write('''
             <!DOCTYPE html>
@@ -164,20 +165,20 @@ class FolderContentMerger(BoxLayout):
             ''')
             
             if include_subfolders:
-                self.process_folder_html(self.folder_path, outfile)
+                self.process_folder_html(self.folder_path, outfile, output_filename)
             else:
-                self.process_files_in_folder_html(self.folder_path, outfile)
+                self.process_files_in_folder_html(self.folder_path, outfile, output_filename)
             
             outfile.write('</body></html>')
 
-    def process_folder_html(self, folder_path, outfile):
+    def process_folder_html(self, folder_path, outfile, output_filename):
         for root, dirs, files in os.walk(folder_path):
-            self.process_files_in_folder_html(root, outfile)
+            self.process_files_in_folder_html(root, outfile, output_filename)
 
-    def process_files_in_folder_html(self, folder_path, outfile):
+    def process_files_in_folder_html(self, folder_path, outfile, output_filename):
         for file in os.listdir(folder_path):
             file_path = os.path.join(folder_path, file)
-            if os.path.isfile(file_path):
+            if os.path.isfile(file_path) and file != output_filename:
                 self.write_file_content_html(file_path, outfile)
 
     def write_file_content_html(self, file_path, outfile):
@@ -202,9 +203,9 @@ class FolderContentMerger(BoxLayout):
         except UnicodeDecodeError:
             outfile.write(f'<p>[Unable to read file: {html.escape(file)}. It may be a binary file.]</p>')
 
-class FolderContentMergerApp(App):
+class ContentMergerApp(App):
     def build(self):
-        return FolderContentMerger()
+        return ContentMerger()
 
 if __name__ == '__main__':
-    FolderContentMergerApp().run()
+    ContentMergerApp().run()
