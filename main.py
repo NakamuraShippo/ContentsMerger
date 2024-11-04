@@ -93,34 +93,34 @@ class ContentMerger(BoxLayout):
         if not self.folder_path:
             self.result_label.text = "フォルダが選択されていません"
             return
-        
+
         output_format = self.output_format_spinner.text
         output_filename = f"merged_content.{output_format.lower()}"
         output_file = os.path.join(self.folder_path, output_filename)
         include_subfolders = self.subfolder_checkbox.active
-        
+
         if output_format == 'HTML':
-            self.merge_files_html(output_file, include_subfolders, output_filename)
+            self.merge_files_html(output_file, include_subfolders, output_file)
         else:
-            self.merge_files_txt(output_file, include_subfolders, output_filename)
-        
+            self.merge_files_txt(output_file, include_subfolders, output_file)
+
         self.result_label.text = f"ファイルが作成されました: {output_file}"
 
-    def merge_files_txt(self, output_file, include_subfolders, output_filename):
+    def merge_files_txt(self, output_file, include_subfolders, output_file_path):
         with open(output_file, 'w', encoding='utf-8') as outfile:
             if include_subfolders:
-                self.process_folder_txt(self.folder_path, outfile, output_filename)
+                self.process_folder_txt(self.folder_path, outfile, output_file_path)
             else:
-                self.process_files_in_folder_txt(self.folder_path, outfile, output_filename)
+                self.process_files_in_folder_txt(self.folder_path, outfile, output_file_path)
 
-    def process_folder_txt(self, folder_path, outfile, output_filename):
+    def process_folder_txt(self, folder_path, outfile, output_file_path):
         for root, dirs, files in os.walk(folder_path):
-            self.process_files_in_folder_txt(root, outfile, output_filename)
+            self.process_files_in_folder_txt(root, outfile, output_file_path)
 
-    def process_files_in_folder_txt(self, folder_path, outfile, output_filename):
+    def process_files_in_folder_txt(self, folder_path, outfile, output_file_path):
         for file in os.listdir(folder_path):
             file_path = os.path.join(folder_path, file)
-            if os.path.isfile(file_path) and file != output_filename:
+            if os.path.isfile(file_path) and os.path.abspath(file_path) != os.path.abspath(output_file_path):
                 self.write_file_content_txt(file_path, outfile)
 
     def write_file_content_txt(self, file_path, outfile):
@@ -144,7 +144,7 @@ class ContentMerger(BoxLayout):
         
         outfile.write(f"\n===== FILE_END: {file} =====\n\n")
 
-    def merge_files_html(self, output_file, include_subfolders, output_filename):
+    def merge_files_html(self, output_file, include_subfolders, output_file_path):
         with open(output_file, 'w', encoding='utf-8') as outfile:
             outfile.write('''
             <!DOCTYPE html>
@@ -163,22 +163,20 @@ class ContentMerger(BoxLayout):
             <body>
                 <h1>Merged Content</h1>
             ''')
-            
             if include_subfolders:
-                self.process_folder_html(self.folder_path, outfile, output_filename)
+                self.process_folder_html(self.folder_path, outfile, output_file_path)
             else:
-                self.process_files_in_folder_html(self.folder_path, outfile, output_filename)
-            
+                self.process_files_in_folder_html(self.folder_path, outfile, output_file_path)
             outfile.write('</body></html>')
 
-    def process_folder_html(self, folder_path, outfile, output_filename):
+    def process_folder_html(self, folder_path, outfile, output_file_path):
         for root, dirs, files in os.walk(folder_path):
-            self.process_files_in_folder_html(root, outfile, output_filename)
+            self.process_files_in_folder_html(root, outfile, output_file_path)
 
-    def process_files_in_folder_html(self, folder_path, outfile, output_filename):
+    def process_files_in_folder_html(self, folder_path, outfile, output_file_path):
         for file in os.listdir(folder_path):
             file_path = os.path.join(folder_path, file)
-            if os.path.isfile(file_path) and file != output_filename:
+            if os.path.isfile(file_path) and os.path.abspath(file_path) != os.path.abspath(output_file_path):
                 self.write_file_content_html(file_path, outfile)
 
     def write_file_content_html(self, file_path, outfile):
